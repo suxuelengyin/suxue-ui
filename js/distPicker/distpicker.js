@@ -1,206 +1,11 @@
 /**
  * 地区选择器 by suxue in 2019/5/29
  */
+// 如何传入列表值
 (function (window, document) {
-    function Scroll(id, params) {
-        console.log(id, params)
-        this.scroller = document.querySelector(id);
-        this.childNode = this.scroller.childNodes[0];
-        this.options = {
-            step: true,// 是否开启步长模式
-            defaultPlace: 0,// 默认列表位置
-            callback: null
-        };
-
-        this.startPageY = 0;
-        this.startTime = 0;
-        this.endTime = 0;
-        this.offsetTop = 0;//上一次滚动位置
-
-        this.scrollerHeight = this.scroller.clientHeight;//scroller高度
-        this.childNodeHeight = this.childNode.clientHeight;//scroller子元素的高度
-        this.scrollHeight = this.childNodeHeight - this.scrollerHeight;//滚动高度
-
-        var childNodes = this.childNode.childNodes;
-        this.stepLen = childNodes.length > 0 ? childNodes[0].clientHeight : 0;// 步长
-
-        // 设置参数
-        for (var i in params) {
-            this.options[i] = params[i];
-        }
-
-        // 默认列表位置
-        var defaultPlace = this.options.defaultPlace ? this.options.defaultPlace : 0;
-        this.scrollTo(0, defaultPlace);
-
-        this._start();
-        this._move();
-        this._end();
-        // console.log(this);
-    }
-
-    Scroll.prototype = {
-        _start: function () {
-            var self = this;
-            self.scroller.addEventListener('touchstart', function (e) {
-                e.stopPropagation();
-                e.preventDefault();
-
-                self.startTime = self.getTime();
-                var touches = e.touches ? e.touches[0] : e;
-                self.startPageY = touches.pageY;//起始触摸点
-
-                self.browserVendor('transition', 'none');
-            }, false);
-        },
-
-        _move: function () {
-            var self = this;
-            self.scroller.addEventListener('touchmove', function (e) {
-                e.stopPropagation();
-                e.preventDefault();
-
-                var timestamp = self.getTime();
-                var touches = e.touches ? e.touches[0] : e;
-
-                // 滚动高度
-                var diffPageY = touches.pageY - self.startPageY;
-                var movePageY = diffPageY + self.offsetTop;
-
-                // 最少移动10px
-                if (timestamp - self.endTime > 300 && Math.abs(diffPageY) < 10) {
-                    return;
-                }
-
-                // 超过边缘滚动有阻力
-                if (movePageY > 0) {
-                    movePageY /= 3;
-                } else if (Math.abs(movePageY) > Math.abs(self.scrollHeight)) {
-                    movePageY = Math.abs(self.scrollHeight) - Math.abs(movePageY);
-                    movePageY = movePageY / 3 - self.scrollHeight;
-                }
-
-                self.browserVendor('transform', 'translate(0, ' + movePageY + 'px)');
-            }, false);
-        },
-
-        _end: function () {
-            var self = this;
-            self.scroller.addEventListener('touchend', function (e) {
-                e.stopPropagation();
-                e.preventDefault();
-
-                self.endTime = self.getTime();
-                var duration = self.endTime - self.startTime;
-
-                var touches = e.changedTouches ? e.changedTouches[0] : e;
-                var offsetHeight = touches.pageY - self.startPageY;//本次滚动偏移位置
-                self.offsetTop += offsetHeight;//记录总偏移位置
-
-                if ((self.offsetTop > 0) || (Math.abs(self.offsetTop) > Math.abs(self.scrollHeight))) {
-                    //上边缘&下边缘
-                    self.browserVendor('transition', 'all 500ms');
-                } else if (duration < 300) { // 惯性滚动
-                    var speed = Math.abs(offsetHeight) / duration;// 惯性移动速度
-                    var moveTime = duration * speed * 20;// 惯性滚动时间(动画)
-                    moveTime = moveTime > 2000 ? 2000 : moveTime;
-                    self.offsetTop += offsetHeight * speed * 10;// 惯性移动距离
-
-                    self.browserVendor('transitionProperty', 'all');
-                    self.browserVendor('transitionDuration', moveTime + 'ms');
-                    self.browserVendor('transitionTimingFunction', 'cubic-bezier(0.1, 0.57, 0.1, 1)');
-                } else {
-                    self.browserVendor('transition', 'all 500ms');
-                }
-
-                if (self.offsetTop > 0) {
-                    self.offsetTop = 0;
-                } else if (Math.abs(self.offsetTop) > Math.abs(self.scrollHeight)) {
-                    self.offsetTop = -self.scrollHeight;
-                }
-
-                // 步长模式
-                if (self.options.step && self.stepLen > 0) {
-                    var nowEndY = self.offsetTop;
-                    var h = Math.abs(nowEndY % self.stepLen);//滚动多余不足step的高度
-                    var halfHeight = self.stepLen / 2;//step一半的高度
-
-                    //超过行一半的高度，则滚动一行
-                    var moveY = (h >= halfHeight) ? (nowEndY - self.stepLen + h) : (nowEndY + h);
-
-                    var index = parseInt(Math.abs(moveY) / self.stepLen);
-                    self.options.callback({
-                        index: index,
-                        node: self.childNode.childNodes,
-                        id: self.scroller.id
-                    });
-                    self.offsetTop = moveY;
-                }
-
-                self.browserVendor('transform', 'translate(0, ' + self.offsetTop + 'px)');
-
-            }, false);
-        },
-
-        // 滚动到指定位置
-        scrollTo: function (x, y, time) {
-            var self = this;
-
-            if (time && time > 0) {
-                self.browserVendor('transitionProperty', 'all');
-                self.browserVendor('transitionDuration', time + 'ms');
-                self.browserVendor('transitionTimingFunction', 'cubic-bezier(0.1, 0.57, 0.1, 1)');
-            } else {
-                self.browserVendor('transition', 'none');
-            }
-
-            y = -y;
-            self.offsetTop = y;
-            self.browserVendor('transform', 'translate(0, ' + y + 'px)');
-        },
-
-        // 刷新
-        refresh: function () {
-            this.childNode = this.scroller.childNodes[0];
-            this.startPageY = 0;
-            this.startTime = 0;
-            this.endTime = 0;
-            this.offsetTop = 0;
-
-            this.scrollerHeight = this.scroller.clientHeight;//scroller高度
-            this.childNodeHeight = this.childNode.clientHeight;//scroller子元素的高度
-            this.scrollHeight = this.childNodeHeight - this.scrollerHeight;//滚动高度
-
-            var childNodes = this.childNode.childNodes;
-            this.stepLen = childNodes.length > 0 ? childNodes[0].clientHeight : 0;// 步长
-
-            this.scrollTo(0, 0, 500);
-        },
-
-        // 浏览器兼容
-        browserVendor: function (styleStr, value) {
-            var self = this;
-            var vendors = ['t', 'WebkitT', 'MozT', 'msT', 'OT'],
-                styleObj,
-                len = vendors.length;
-            var elementStyle = self.childNode.style;
-
-            for (var i = 0; i < len; i++) {
-                styleObj = vendors[i] + styleStr.substr(1);
-                if (styleObj in elementStyle) {
-                    elementStyle[styleObj] = value;
-                    // console.log(styleObj + ' = ' + value);
-                }
-            }
-        },
-
-        // 获取当前时间
-        getTime: function () {
-            return parseInt(new Date().getTime());
-        }
-    };
     function DistPicker(params) {
         const defaultParams = {
+            key: 1,
             nameKey: "name",
             dataEventsList: [],
             scrollSelect: false,
@@ -217,7 +22,20 @@
 
         // 初始化
         this.init();
+        console.log(this)
     }
+
+    // 扩展原型
+    DistPicker.extend = function (obj) {
+        DistPicker.prototype = { ...DistPicker.prototype, ...obj }
+    }
+    // 扩展静态方法
+    DisPicker.extendStatic = function (obj) {
+        for (let key in obj) {
+            DistPicker[key] = obj[key]
+        }
+    }
+
     DistPicker.prototype = {
         // 初始化
         init: function () {
@@ -247,6 +65,7 @@
                 this.value[this.step] = e.target.innerText;
                 this.step++
                 if (this.step < this.dataEventsList.length - 1) {
+                    
                     this.dataList[this.step] = this.dataEventsList[this.step](this.value, this.dataList[this.step - 1])
                     this.updatedList(this.dataList[this.step])
                 } else {
@@ -297,7 +116,7 @@
                 data.then(results => {
                     results.map(item => {
                         var text
-                        if (typeof item === "string") {
+                        if (typeof item !== "object") {
                             text = item
                         } else if (typeof item === "object") {
                             text = item[this.nameKey]
@@ -357,5 +176,101 @@
             this.updatedList(this.dataList[this.step])
         },
     }
+
+    // utils 工具函数
+    DistPicker.extendStatic({
+        typeOf(obj) {
+            return Object.prototype.toString.call(obj)
+        },
+        equalObjectDeep(obj, another) {
+            const typeOf = DistPicker.typeOf
+            for (let key in obj) {
+                if (typeOf(obj[key]) !== "[object Object]" || "[object Array]") {
+                    if (obj[key] !== another[key]) {
+                        return false
+                    }
+                } else if (typeOf(obj[key]) !== "[object Object]") {
+                    if (!DistPicker.equalObjectDeep(obj[key], another[key])) {
+                        return false
+                    }
+                } else if (typeOf(obj[key]) !== "[object Array]") {
+                    if (!DistPicker.equalArrayDeep(obj[key], another[key])) {
+                        return false
+                    }
+                }
+            }
+            return true
+        },
+        equalArrayDeep(arr, another) {
+            for (let i = 0; i < arr.length; i++) {
+                if (!DistPicker.equalObjectDeep(arr[i], another[i])) {
+                    return false
+                }
+            }
+            return true
+        }
+    })
+
+    // 数据缓存
+    DistPicker.dataCache = {}
+    DistPicker.extend({
+        getStepObj(obj) {
+            if (obj.step == this.step) {
+                return obj
+            } else if (obj.children) {
+                return this.getStep(obj.children)
+            } else {
+                return null
+            }
+        },
+        setData(arr) {
+            return arr.map(item => {
+                const newItem = {}
+                newItem.step === this.step;
+                newItem.value === item
+                return newItem
+            })
+        },
+        // 是否已经设置过缓存，判断数据结构符合即可     
+        hasSetData(data) {
+            return !!data.step
+        },
+        // 获取缓存，发生在用户点击列表某项拿数据之前
+        getDataCache(preVal) {
+            if (DistPicker.dataCache[key]) {
+                const dataCache = DistPicker.dataCache[key]
+                // 没有上一个值，则返回初始列表
+                if (!preVal) {
+                    return dataCache.map(item => item.value)
+                }
+                return dataCache
+                    .map(item => this.getStepObj(item))
+                    .filter(item => DistPicker.equalObjectDeep(item.value, preVal))[0].children
+                    .map(item => item.value)
+
+            } else {
+                return undefined
+            }
+        },
+        // 设置缓存，发生在用户点击列表某项拿数据之后
+        setDataCache(preVal, data) {
+            if (DistPicker.dataCache[key]) {
+                const dataCache = DistPicker.dataCache[key]
+                // 没有上一个值，则返回初始列表
+                if (!preVal) {
+                    dataCache = this.setData(data)
+                }
+                const datas = dataCache
+                    .map(item => this.getStepObj(item))
+                    .filter(item => DistPicker.equalObjectDeep(item.value, preVal))[0].children
+                if (!this.hasSetData(datas)) {
+                    data = this.setData(data)
+                }
+
+            } else {
+                return undefined
+            }
+        },
+    })
     window.DistPicker = DistPicker
 })(window, document)
