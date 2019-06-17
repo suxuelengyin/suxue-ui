@@ -1,0 +1,227 @@
+* {
+    margin: 0;
+    padding: 0
+}
+
+html,
+body {
+    height: 100%;
+    width: 100%;
+    overflow: auto;
+    background-color: #f6f6f6;
+    padding-bottom: 12vw;
+}
+
+button {
+    border: none;
+    outline: 0 none !important;
+    outline-color: rgba(255, 255, 255, 0);
+    background: none;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+.su-comment {
+    background-color: #ffffff;
+}
+
+
+.su-submit {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: 12vw;
+    font-size: 4vw;
+    color: #fffffF;
+    background-color: #c6e7ff;
+}
+
+.su-hasOk {
+    background-color: #1f9dfb !important;
+}
+
+.su-formItem {
+    height: 56px;
+    box-sizing: border-box;
+    padding-left: 4vw;
+}
+
+.su-Itemflex {
+    display: flex;
+    align-items: center;
+    flex-flow: row nowrap;
+}
+
+.su-itemborder {
+    border-bottom: 1px #ededed solid;
+}
+
+.su-formItem .su-formLabel {
+    display: inline-block;
+    min-width: 60px;
+    font-size: 4vw;
+    color: #333333;
+}
+
+.su-inputWrap {
+    height: 100%;
+    flex-grow: 1;
+    position: relative;
+}
+
+.su-formItem input {
+    width: 100%;
+    display: inline-block;
+    height: 100%;
+    border: none;
+    margin: 0;
+    padding: 0;
+    outline: none;
+    font-size: 4vw;
+    font-family: inherit;
+}
+
+.su-textareaDiv {
+    width: 100%;
+    height: 41vw;
+    padding: 5vw 4vw 7vw 4vw;
+}
+
+.su-textareaDiv textarea {
+    height: 100%;
+    width: 100%;
+    font-size: 4vw;
+    border: none;
+    outline: none;
+}
+
+
+.su-fileInput {
+    padding: 0 0vw 2vw 3.5vw;
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.su-fileFlex {
+    width: 21vw;
+    height: 21vw;
+    margin-right: 3vw;
+    margin-bottom: 3vw;
+}
+
+.su-upload {
+
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: center;
+    align-items: center;
+    border: #ededed 1px dashed;
+}
+
+.su-upload img {
+    width: 7vw
+}
+
+.su-upload span {
+    font-size: 3vw;
+    color: #dedede;
+    margin-top: 3vw;
+}
+
+.su-uploadImg img {
+    width: 100%
+}
+
+
+
+.su-sound {
+    margin-top: 2vw;
+    padding: 4vw 3vw 8vw 4vw;
+    background-color: #ffffff;
+}
+
+.su-largeText {
+    font-size: 4vw;
+    color: #333333;
+}
+
+.su-littleText {
+    font-size: 3vw;
+    color: #999999;
+}
+
+.su-soundInput {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 6vw;
+}
+
+.su-timeProgress {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.su-progress {
+    width: 56vw;
+    height: 1vw;
+    background-color: #e1e1e1;
+    border-radius: 1vw;
+    margin-right: 2vw
+}
+
+.su-progress-width {
+    height: 100%;
+    width: 50%;
+    background-color: #e1e1e1;
+    border-radius: 1vw;
+}
+
+.su-barTrasiton {
+    /* transition: width linear 1s */
+}
+
+.su-soundIcon {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.su-Iconblock {
+    display: block !important;
+    margin-right: 4vw;
+}
+
+.su-Icon-pause {
+    background-image: url('./img/parse.png');
+    background-size: 2vw;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.su-Icon-play {
+    background-image: url('./img/play.png');
+    background-size: 3vw;
+    background-position: 60% 50%;
+    background-repeat: no-repeat;
+}
+
+.su-Icon-micro {
+    background-image: url('./img/micro.png');
+    background-size: 3vw;
+    background-position: center center;
+    background-repeat: no-repeat;
+}
+
+.su-Icon {
+    width: 8vw;
+    height: 8vw;
+    border-radius: 50%;
+    display: none;
+    background-color: #cbcbcb;
+}

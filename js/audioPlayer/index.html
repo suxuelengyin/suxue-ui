@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link href="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/css/bootstrap-reboot.css" rel="stylesheet">
+    <link rel="stylesheet" href="./index.css">
+    <title>每日点评</title>
+</head>
+
+<body>
+    <div class="su-comment">
+        <div class="su-formItem su-itemborder su-Itemflex">
+            <span class="su-formLabel">学生姓名：</span>
+            <div class="su-inputWrap">
+                <input v-model="name" type="text" value="赵伟博" readonly>
+            </div>
+        </div>
+        <div class="su-textareaDiv">
+            <textarea v-model="name" type="text" placeholder="请描述学生今日的表现"></textarea>
+        </div>
+        <div class="su-fileInput">
+            <div class="su-fileFlex su-uploadImg">
+                <img src="./img/1.jpg" alt="">
+            </div>
+            <div class="su-fileFlex su-uploadImg">
+                <img src="./img/1.jpg" alt="">
+            </div>
+            <div class="su-fileFlex su-uploadImg">
+                <img src="./img/1.jpg" alt="">
+            </div>
+            <div class="su-fileFlex su-uploadImg">
+                <img src="./img/1.jpg" alt="">
+            </div>
+            <label class="su-fileFlex su-upload">
+                <img src="./img/camera.png" alt="">
+                <span>
+                    添加图片
+                </span>
+                <input type="file" accept="" style="display: none;">
+            </label>
+        </div>
+
+    </div>
+    <div class="su-sound">
+        <div>
+            <span class="su-largeText">语音</span>
+            <span class="su-littleText">(时长30s)</span>
+        </div>
+        <div class="su-soundInput">
+            <div class="su-timeProgress">
+                <div class="su-progress">
+                    <audio id="su-audio" src="https://m3.8js.net/20180328/qifengle.mp3" preload="auto"></audio>
+                    <!-- 修改该div的宽度（百分比）即可实现进度条 -->
+                    <div class="su-progress-width su-hasOk su-barTrasiton" style="width:0%"></div>
+                </div>
+                <span class="su-littleText" id="su-di">0s</span>
+            </div>
+            <div class="su-soundIcon">
+                <!-- 出现请添加 su-Iconblock 类 -->
+                <!-- 激活请添加 su-hasOk 类-->
+                <!-- 切换图片 su-Icon- 修改后缀即可，如 su-Icon-play su-Icon-pause su-Icon-micro -->
+                <div id="su-playButton" class="su-Icon su-Iconblock su-hasOk su-Icon-play">
+
+                </div>
+                <!--  -->
+                <div class="su-Icon su-Iconblock su-hasOk su-Icon-micro">
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <button id="su-submit" class="su-submit su-hasOk">提交</button>
+    <script src="./audioProgress.js"></script>
+    <script src="./index.js"></script>
+</body>
+
+</html>

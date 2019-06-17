@@ -30,7 +30,7 @@
         DistPicker.prototype = { ...DistPicker.prototype, ...obj }
     }
     // 扩展静态方法
-    DisPicker.extendStatic = function (obj) {
+    DistPicker.extendStatic = function (obj) {
         for (let key in obj) {
             DistPicker[key] = obj[key]
         }
@@ -65,7 +65,6 @@
                 this.value[this.step] = e.target.innerText;
                 this.step++
                 if (this.step < this.dataEventsList.length - 1) {
-                    
                     this.dataList[this.step] = this.dataEventsList[this.step](this.value, this.dataList[this.step - 1])
                     this.updatedList(this.dataList[this.step])
                 } else {
@@ -111,20 +110,7 @@
         updatedList: function (data) {
             var x = document.getElementsByClassName('su-list-ul')[0]
             x.innerHTML = ""
-            if (data.then) {
-                this.loading()
-                data.then(results => {
-                    results.map(item => {
-                        var text
-                        if (typeof item !== "object") {
-                            text = item
-                        } else if (typeof item === "object") {
-                            text = item[this.nameKey]
-                        }
-                        x.innerHTML = x.innerHTML + `<li>${text}</li>`
-                    })
-                })
-            } else {
+            DistPicker.promiseCallback(data, (data) => {
                 data.map(item => {
                     var text
                     if (typeof item !== "object") {
@@ -134,7 +120,7 @@
                     }
                     x.innerHTML = x.innerHTML + `<li>${text}</li>`
                 })
-            }
+            })
         },
         // 展示选择器
         showList: function () {
@@ -179,6 +165,15 @@
 
     // utils 工具函数
     DistPicker.extendStatic({
+        promiseCallback(promise, callback) {
+            if (promise.then) {
+                promise.then(data => {
+                    callback(data)
+                })
+            } else {
+                callback(promise)
+            }
+        },
         typeOf(obj) {
             return Object.prototype.toString.call(obj)
         },
