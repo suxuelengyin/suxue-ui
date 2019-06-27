@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        .comment-title {
+            text-align: center;
+            font-size: 16px;
+            color: #333;
+            line-height: 54px;
+            font-weight: 600
+        }
+
+        .comment-iconDiv {
+            margin: 0 auto;
+            text-align: center;
+            margin-top: 15px;
+            font-size: 16px;
+            width: 75%;
+            color: #333;
+            line-height: 54px;
+            display: flex;
+            flex-flow: row nowrap;
+            justify-content: space-between;
+            align-items: center
+        }
+
+        .comment-icon {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 95px;
+            height: 29px;
+            line-height: 1;
+            border-radius: 14px;
+            background-color: #f7f7f7;
+            font-size: 13px;
+            text-indent: 25px;
+        }
+
+        .comment-icon-active {
+            background-color: #fde3e3;
+            color: #ef4246;
+        }
+
+        .comment-icon img {
+            position: absolute;
+            width: 35px;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%)
+        }
+
+        .su-success {
+            display: flex;
+            flex-flow: column nowrap;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .su-success img {
+            width: 13vw
+        }
+
+        .su-registed {
+            margin-top: 10px;
+            font-size: 16px;
+        }
+
+        .su-tips {
+            font-size: 13px;
+            color: #999999;
+            margin-top: 15px;
+        }
+    </style>
+    <script src="./comment.js"></script>
+</head>
+
+<body>
+    <div style="position: relative; z-index: 9; padding: 0px 10px; top: 225px;" id="advise_block" data-pageid="41870"
+        data-vid="4777" data-videotitle="数的家族">
+        <div class="comment-title">
+            课程评价
+        </div>
+        <div class="comment-iconDiv">
+            <div class="comment-icon" onclick="openLike(this)">
+                <span>喜欢</span>
+                <img src="./img/like.png" alt="">
+            </div>
+            <div class="comment-icon" onclick="openNoLike(this)">
+                <span>不喜欢</span>
+                <img src="./img/notlike.png" alt="">
+            </div>
+        </div>
+        <!-- 评价成功 -->
+        <div class="su-success">
+            <img src="./img/success.png" alt="注册成功">
+            <span class="su-registed">已评价</span>
+            <span class="su-tips">感谢评价，您的反馈会让我们做的更好！</span>
+            <!-- <div class="su-help"><a href="https://v.qq.com/x/page/g0876mq2wld.html">查看帮助视频</a></div> -->
+        </div>
+        <!-- <div style="margin-top:17px;text-align:center" id="star">
+            <div class="cco-course-star" onclick="star(this);"></div>
+            <div class="cco-course-star" onclick="star(this);"></div>
+            <div class="cco-course-star" onclick="star(this);"></div>
+            <div class="cco-course-star" onclick="star(this);"></div>
+            <div class="cco-course-star" onclick="star(this);"></div>
+        </div>
+        <div style="margin-top:20px;margin-bottom:20px;text-align:center;font-size:14px;color:#ff512b;" id="star_msg">
+        </div>
+        <textarea placeholder="请输入对课程的意见和建议，对学习有没有帮助？能听懂吗？" id="opinionComent"
+            style="display:block;border:1px solid #ededed;width:100%;resize:none;height:121px;margin:0;padding:12px 13px;box-sizing:border-box;-webkit-appearance: none;font-size: 14px;"></textarea>
+        <div class="cco-course-star-submit-button">提交评价</div> -->
+    </div>
+    <script>
+        var comment = new Comment({
+            // 阴影是否可点击
+            shadeClick: false,
+            // 扩展内置的渲染规则
+            extendRule: {
+                nolike: {
+                    list: ["讲解内容对学习没有帮助", "讲的不清楚，不好理解", "讲的太没意思，不喜欢", "画质不清晰，体验不好", "知识点覆盖不全", "其他"],
+                }
+            },
+            // 提交按钮，type规则类型
+            submit: (type, val) => {
+                console.log("submit: " + val)
+                comment.close()
+            }
+        })
+        function openLike(e) {
+            comment.open({
+                type: "like",
+                close: true,
+            })
+        }
+        function openNoLike(e) {
+            comment.open({
+                type: "nolike"
+            })
+        }
+    </script>
+</body>
+
+</html>

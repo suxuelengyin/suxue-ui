@@ -22,17 +22,16 @@ var audioPlay = new AudioPlay({
     play, // 播放按钮
     pause: play,//暂停按钮
     isPlayWhentouch: true, //拖动时是否播放
-    downloadBar:true,
-    addOtherEvent: () => { },
-    onTimeUpdate: () => { },
-    onPlaying: () => {
+    downloadBar:true,//是否显示下载进度条
+    addOtherEvent: () => { },//添加其他事件监听
+    onTimeUpdate: () => { },//播放进度改变时
+    onPlaying: () => { //播放中执行的函数
         setClassName(play, "su-Icon-play", "su-Icon-pause")
     },
-    onPausing: () => {
+    onPausing: () => { //暂停时执行的函数
         setClassName(play, "su-Icon-pause", "su-Icon-play")
     },
-    onEnded: () => {
-        console.log(1111)
+    onEnded: () => { //结束时执行的函数
         setClassName(play, "su-Icon-pause", "su-Icon-play")
     }
 })
