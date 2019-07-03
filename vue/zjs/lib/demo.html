@@ -1,0 +1,17 @@
+<meta charset="utf-8">
+<title>zjs.vue demo</title>
+<script src="https://cdn.bootcss.com/vue/2.6.10/vue.js"></script>
+<script src="./zjs.umd.js"></script>
+
+<link rel="stylesheet" href="./zjs.css">
+<div id="app">
+    <zjs-distpicker msg="sadsaddsa " />
+</div>
+
+<script>
+    Vue.use(zjs)
+    new Vue({
+        el: '#app'
+    })
+    console.log(zjs)
+</script>
