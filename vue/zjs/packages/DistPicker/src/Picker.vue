@@ -8,7 +8,11 @@
           <span>{{title}}</span>
           <span class="su-cancel" @click="close">取消</span>
         </div>
-        <PickerList @change="change" />
+        <div class="su-listDiv">
+          <PickerList @change="change" />
+          <PickerList @change="change" />
+          <PickerList @change="change" />        
+        </div>
       </div>
     </div>
   </transition>
@@ -59,8 +63,8 @@ export default {
         this.closed = true;
       }
     },
-    change(val,index){
-        console.log(val,index)
+    change(val, index) {
+      console.log(val, index);
     }
   },
   created() {},
@@ -103,7 +107,10 @@ export default {
 
 .su-distPicker {
 }
-
+.su-listDiv {
+    display: flex;
+    flex-flow: row nowrap;
+}
 .su-banner {
   position: relative;
   text-align: center;

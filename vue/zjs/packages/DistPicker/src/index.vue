@@ -13,6 +13,9 @@ export default {
   components: {
     Picker
   },
+  props: {
+      
+  },
   data: function() {
     return {
       visible: false

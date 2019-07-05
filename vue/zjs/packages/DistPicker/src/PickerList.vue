@@ -10,7 +10,7 @@
         }"
     >
       <li v-for="(list,index) in lists" :key="index">{{list}}</li>
-    </ul>  
+    </ul>
   </div>
 </template>
 <script>
@@ -58,15 +58,16 @@ export default {
         e.stopPropagation();
       }
       let y = e.changedTouches[0].pageY;
-      return y;
+      let x = e.changedTouches[0].pageX;
+      return { y, x };
     },
     touchstart(e) {
-      let y = this.getPageY(e);
+      let { y } = this.getPageY(e);
       this.start = y;
       this.end = y;
     },
     touchmove(e) {
-      let y = this.getPageY(e);
+      let { y } = this.getPageY(e);
       this.moveHeight = y - this.start + this.preHeight;
     },
     touchend(e) {
@@ -104,6 +105,8 @@ export default {
   height: 258px;
   position: relative;
   overflow: hidden;
+  flex-grow: 1;
+  flex-basis: 1;
 }
 .su-list ul {
 }
@@ -111,7 +114,6 @@ export default {
 .su-list li {
   text-align: center;
   height: 36px;
-  width: 80vw;
   margin: 0 auto;
   display: flex;
   justify-content: center;
