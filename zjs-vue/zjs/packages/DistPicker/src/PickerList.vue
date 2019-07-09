@@ -9,7 +9,10 @@
         transition: isScroll?'all .3s cubic-bezier(0,0,0.2,1.15)':''
         }"
     >
-      <li v-for="(list,index) in lists" :key="index">{{list}}</li>
+      <li
+        v-for="(list,index) in lists"
+        :key="index"
+      >{{typeof list === "string"?list:list[labelKey]}}</li>
     </ul>
   </div>
 </template>
@@ -19,34 +22,77 @@ export default {
   props: {
     lists: {
       type: Array,
-      default: () => [
-        "暂无数据",
-        "暂无数据",
-        "暂无数据",
-        "暂无数据",
-        "暂无数据",
-        "暂无数据",
-        "暂无数据",
-        "暂无数据"
-      ]
+      default: () => []
+    },
+    selectIndex: {
+      type: Number,
+      default: 0
+    },
+    labelKey: {
+      type: String,
+      default: "label"
+    },
+    value: {
+      type: Array,
+      default: () => []
+    },
+    indexArr: {
+      type: Array,
+      default: () => []
     }
   },
   data() {
+    let liHeight = 36;
+    let moveHeight = 0;
+    const valIndex = this.lists.indexOf(this.value[this.selectIndex]);
+    if (valIndex > -1) {
+      moveHeight = -this.lists.indexOf(this.value[this.selectIndex]) * liHeight;
+    }
     return {
-      liHeight: 36,
+      liHeight,
       start: 0,
       end: 0,
-      preHeight: 0,
-      moveHeight: 0,
+      preHeight: moveHeight,
+      moveHeight,
       isScroll: false,
       index: 0
     };
   },
   computed: {},
   watch: {
-    moveHeight: function(val) {}
+    moveHeight: function(val) {},
+    // lists 变化时，滚动归零
+    lists(newval, oldval) {
+        console.log(newval, oldval)
+        
+        this.moveHeight = 0;
+        this.preHeight = 0;
+        // this.emitChange();
+      
+    }
+  },
+  mounted() {
+    this.$nextTick(() => {
+      this.emitChange();
+    });
   },
   methods: {
+    emitChange() {
+      // 选中的值列表
+      let val = [...this.value];
+      // 选中的值的索引列表
+      let IndexArr = [...this.indexArr];
+      val[this.selectIndex] = this.lists[this.index];
+      IndexArr[this.selectIndex] = this.index || 0;
+      this.$emit("update:value", val);
+      this.$emit("update:indexArr", IndexArr);
+      this.$emit(
+        "change",
+        JSON.parse(JSON.stringify(val)),
+        this.index,
+        this.selectIndex
+      );
+    },
     getPageY(e) {
       if (
         status !== "11" &&
@@ -80,7 +126,7 @@ export default {
       this.scroll();
       this.index = Math.abs(parseInt(this.moveHeight / this.liHeight, 10));
       // 触发change事件
-      this.$emit("change", this.lists[this.index], this.index);
+      this.emitChange();
       this.preHeight = this.moveHeight;
     },
     // 滚动调整
@@ -88,6 +134,7 @@ export default {
       let res = Math.abs(this.moveHeight % this.liHeight);
       // 添加滚动调整动画
       this.isScroll = true;
+      // 计算需要调整的滚动距离
       if (res !== 0 && res > this.liHeight / 2) {
         this.moveHeight = this.moveHeight - (this.liHeight - res);
       } else if (res !== 0) {

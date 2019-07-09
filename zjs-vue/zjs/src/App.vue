@@ -1,7 +1,14 @@
 <template>
   <div id="app">
-    <Picker>
-        <button>地区选择器</button>
+    <Picker
+      @onChange="onChange"
+      labelKey="name"
+      title="请选择地区"
+      :cols="cols"
+      :data="data"
+      data-event-list="dataEventList"
+    >
+      <button>地区选择器</button>
     </Picker>
   </div>
 </template>
@@ -15,14 +22,40 @@ export default {
     Picker
   },
   data: function() {
+    let data = [];
     return {
-      visible: false
+      data,
+      visible: false,
+      cols: 1
     };
   },
+  created() {
+    fetch("https://dev.zijinshe.com/cms/weixin/zjs/getProvinces")
+      .then(res => res.json())
+      .then(data => {
+        this.data = data;
+        console.log(data);
+      });
+  },
+  mounted() {},
   methods: {
     toggle() {
-      console.log(111);
       this.visible = !this.visible;
+    },
+    onChange(val, index, deep) {
+      const value = val[deep];
+      if (deep === 0 && !this.data[index].children) {
+        fetch(
+          `https://dev.zijinshe.com/cms/weixin/zjs/getCity?cityNum=${value.regionCode}`
+        )
+          .then(res => res.json())
+          .then(data => {
+            const list = this.data[index];
+            list.children = data;
+            this.$set(this.data, index, list);
+            this.cols = 2;
+          });
+      }
     }
   }
 };

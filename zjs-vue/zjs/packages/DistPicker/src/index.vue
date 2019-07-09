@@ -3,7 +3,7 @@
     <div @click.stop="toggle">
       <slot></slot>
     </div>
-    <Picker :visible.sync="visible" title="请选择" />
+    <Picker v-bind="$props" v-on="$listeners" :visible.sync="visible" />
   </div>
 </template>
 <script>
@@ -14,14 +14,40 @@ export default {
     Picker
   },
   props: {
-      
+    labelKey: {
+      type: String,
+      default: "label"
+    },
+    title: {
+      type: String,
+      default: "请选择"
+    },
+    dataEventsList: {
+      type: Array,
+      default: () => [() => false, () => false]
+    },
+    data: {
+      type: Array,
+      default: () => []
+    },
+    cols: {
+      type: Number,
+      default: 3
+    },
+    val: {
+      type: Array,
+      default: () => ["暂无数"]
+    }
   },
   data: function() {
     return {
       visible: false
     };
   },
-  mounted() {},
+  created() {},
+  mounted() {
+      console.log(this.$props)
+  },
   methods: {
     toggle() {
       this.visible = !this.visible;
