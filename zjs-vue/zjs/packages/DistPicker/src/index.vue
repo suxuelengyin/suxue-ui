@@ -3,11 +3,12 @@
     <div @click.stop="toggle">
       <slot></slot>
     </div>
-    <Picker v-bind="$props" v-on="$listeners" :visible.sync="visible" />
+    <Picker v-bind="$props" :setdata="setdata" v-on="$listeners" :visible.sync="visible" />
   </div>
 </template>
 <script>
 import Picker from "./Picker";
+import { promiseCallback } from "./utils";
 export default {
   name: "zjs-picker",
   components: {
@@ -28,7 +29,13 @@ export default {
     },
     data: {
       type: Array,
-      default: () => []
+      default: function() {
+        return [];
+      }
+    },
+    cascade: {
+      type: Boolean,
+      default: true
     },
     cols: {
       type: Number,
@@ -37,7 +44,7 @@ export default {
     val: {
       type: Array,
       default: function() {
-        return new Array(this.cols);
+        return new Array(this.cols).fill(0);
       }
     }
   },
@@ -46,11 +53,19 @@ export default {
       visible: false
     };
   },
-  created() {},
+  created() {
+    promiseCallback(this.dataEventsList[0](), data => {
+      console.log(data);
+      this.$emit("update:data", data);
+    });
+  },
   mounted() {},
   methods: {
     toggle() {
       this.visible = !this.visible;
+    },
+    setdata: data => {
+      this.$emit("update:data", data);
     }
   }
 };

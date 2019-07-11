@@ -17,9 +17,10 @@
             :value.sync="value"
             :whoIsZero="whoIsZero"
             :labelKey="labelKey"
-            :lists="getLists(data,indexArr,index)"
+            :data="data"
             :indexArr.sync="indexArr"
             :cols="cols"
+            :dataEventsList="dataEventsList"
           />
         </div>
       </div>
@@ -59,33 +60,28 @@ export default {
     data: {
       type: Array,
       default: () => []
-    }
+    },
+    setdata: {
+      type: Function,
+      default: () => () => {}
+    },
+    cascade: {
+      type: Boolean,
+      default: true
+    },
   },
   data: function() {
     return {
       step: 0,
       value: this.val || [],
       opened: false,
-      indexArr: [],
+      indexArr: new Array(this.cols).fill(0),
       whoIsZero: -1
     };
   },
   computed: {},
   methods: {
     init() {},
-    getLists(data, indexArr, selectIndex) {
-      let lists = [...data];
-      let index = 0;
-      for (let i = 0; i <= selectIndex; i++) {
-        index = indexArr[i - 1] || 0;
-        if (i === 0) {
-          lists = data;
-        } else {
-          lists = lists[index] ? lists[index].children || [] : [];
-        }
-      }
-      return lists;
-    },
     ok() {
       this.$emit("onOk");
       this.close();
@@ -109,6 +105,7 @@ export default {
     }
   },
   created() {
+    this.$emit("update:data", []);
   },
   watch: {
     visible(val) {

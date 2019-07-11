@@ -17,16 +17,21 @@
   </div>
 </template>
 <script>
+import { promiseCallback } from "./utils";
 export default {
   name: "zjs-pickerlist",
   props: {
-    lists: {
+    data: {
       type: Array,
       default: () => []
     },
     deep: {
       type: Number,
       default: 0
+    },
+    dataEventsList: {
+      type: Array,
+      default: () => [() => false, () => false]
     },
     labelKey: {
       type: String,
@@ -43,14 +48,22 @@ export default {
     whoIsZero: {
       type: Number,
       default: -1
+    },
+    setdata: {
+      type: Function,
+      default: () => () => {}
+    },
+    cascade: {
+      type: Boolean,
+      default: true
     }
   },
   data() {
     let liHeight = 36;
     let moveHeight = 0;
-    const valIndex = this.lists.indexOf(this.value[this.deep]);
+    const valIndex = this.data.indexOf(this.value[this.deep]);
     if (valIndex > -1) {
-      moveHeight = -this.lists.indexOf(this.value[this.deep]) * liHeight;
+      moveHeight = -this.data.indexOf(this.value[this.deep]) * liHeight;
     }
     return {
       liHeight,
@@ -58,12 +71,27 @@ export default {
       end: true,
       preHeight: moveHeight,
       moveHeight,
-      isScroll: false
+      isScroll: false,
+      index: 0
     };
   },
   computed: {
-    index() {
-      return Math.abs(parseInt(this.moveHeight / this.liHeight, 10));
+    lists() {
+      let lists = [...this.data];
+      let index = 0;
+      if (this.cascade) {
+        for (let i = 0; i <= this.deep; i++) {
+          index = this.indexArr[i - 1] || 0;
+          if (i === 0) {
+            lists = this.data;
+          } else {
+            lists = lists[index] ? lists[index].children || [] : [];
+          }
+        }
+      } else {
+        lists = data[this.deep];
+      }
+      return lists;
     }
   },
   watch: {
@@ -75,15 +103,15 @@ export default {
     indexArr(val) {
       // this.emitChange();
     },
-    index(newval, oldval) {
-      // 触发change事件
-      this.emitChange();
-    },
     // 监听自己需不要滚动到0
     whoIsZero(val) {
-      if (this.deep === val) {
-        this.moveHeight = 0;
-        this.preHeight = 0;
+      if (this.cascade) {
+        if (this.deep === val) {
+          this.moveHeight = 0;
+          this.preHeight = 0;
+          this.index = 0;
+          this.emitChange();
+        }
       }
     }
   },
@@ -94,7 +122,29 @@ export default {
   },
   methods: {
     initChange() {},
+    updateData() {
+      let nowLists = [...this.lists];
+      const fn = this.dataEventsList[this.deep + 1] || function() {};
+      console.log(fn);
+      let oldData =  [...this.data]
+      let lists = [...this.data][this.indexArr[0]];
+      let index = 0;
+      for (let i = 0; i <= this.deep; i++) {
+        index = this.indexArr[i - 1] || 0;
+        if (i !== 0) {
+          lists = lists[index] ? lists[index].children || [] : [];
+        }
+        if (i === this.deep) {
+          promiseCallback(fn(nowLists[this.index]), data => {
+            lists.children = data;
+            console.log(oldData,lists,data)
+            this.setdata(oldData);
+          });
+        }
+      }
+    },
     emitChange() {
+      this.updateData();
       // 选中的值列表
       let val = [...this.value];
       // 选中的值的索引列表
@@ -142,6 +192,11 @@ export default {
       }
       this.scroll();
       this.end = true;
+      this.index = Math.abs(parseInt(this.moveHeight / this.liHeight, 10)) || 0;
+      // 触发change事件
+      if (this.preHeight !== this.moveHeight) {
+        this.emitChange();
+      }
       this.preHeight = this.moveHeight;
     },
     // 滚动调整
