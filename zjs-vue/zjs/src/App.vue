@@ -26,7 +26,7 @@ export default {
     return {
       data,
       visible: false,
-      cols: 1
+      cols: 3
     };
   },
   created() {
@@ -34,7 +34,6 @@ export default {
       .then(res => res.json())
       .then(data => {
         this.data = data;
-        console.log(data);
       });
   },
   mounted() {},
@@ -42,20 +41,52 @@ export default {
     toggle() {
       this.visible = !this.visible;
     },
-    onChange(val, index, deep) {
-      const value = val[deep];
-      if (deep === 0 && !this.data[index].children) {
-        fetch(
-          `https://dev.zijinshe.com/cms/weixin/zjs/getCity?cityNum=${value.regionCode}`
-        )
-          .then(res => res.json())
-          .then(data => {
-            const list = this.data[index];
-            list.children = data;
-            this.$set(this.data, index, list);
-            this.cols = 2;
-          });
-      }
+    onChange(val, indexArr, deep) {
+      console.log(val, indexArr, deep);
+      let value = val
+      let datas = [...this.data]
+    //   for (let i = 0; i < this.cols; i++) {
+    //     if (!this.data[indexArr[i]].children) {
+    //       fetch(
+    //         `https://dev.zijinshe.com/cms/weixin/zjs/getCity?cityNum=${val[i].regionCode}`
+    //       )
+    //         .then(res => res.json())
+    //         .then(data => {
+    //           const list = this.data[indexArr[0]];
+    //           list.children = data;
+    //           this.$set(this.data, indexArr[0], list);
+    //           this.cols = 2;
+    //         });
+    //     }
+    //   }
+      //   if (!this.data[indexArr[0]].children) {
+      //     fetch(
+      //       `https://dev.zijinshe.com/cms/weixin/zjs/getCity?cityNum=${value.regionCode}`
+      //     )
+      //       .then(res => res.json())
+      //       .then(data => {
+      //         const list = this.data[indexArr[0]];
+      //         list.children = data;
+      //         this.$set(this.data, indexArr[0], list);
+      //         this.cols = 2;
+      //       });
+      //   }
+      //   console.log(!this.data[indexArr[0]].children[indexArr[1]].children)
+      //   if (
+      //     !this.data[indexArr[0]].children[indexArr[1]].children
+      //   ) {
+      //     fetch(
+      //       `https://dev.zijinshe.com/cms/weixin/zjs/getArea?areaNum=${val[1].regionCode}`
+      //     )
+      //       .then(res => res.json())
+      //       .then(data => {
+      //         const list = this.data[indexArr[0]];
+      //         list.children[indexArr[1]].children = data;
+      //         console.log(list);
+      //         this.$set(this.data, indexArr[0], list);
+      //         this.cols = 3;
+      //       });
+      //   }
     }
   }
 };

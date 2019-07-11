@@ -36,7 +36,9 @@ export default {
     },
     val: {
       type: Array,
-      default: () => ["暂无数"]
+      default: function() {
+        return new Array(this.cols);
+      }
     }
   },
   data: function() {
@@ -45,9 +47,7 @@ export default {
     };
   },
   created() {},
-  mounted() {
-      console.log(this.$props)
-  },
+  mounted() {},
   methods: {
     toggle() {
       this.visible = !this.visible;

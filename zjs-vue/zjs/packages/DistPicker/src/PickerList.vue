@@ -24,7 +24,7 @@ export default {
       type: Array,
       default: () => []
     },
-    selectIndex: {
+    deep: {
       type: Number,
       default: 0
     },
@@ -39,36 +39,52 @@ export default {
     indexArr: {
       type: Array,
       default: () => []
+    },
+    whoIsZero: {
+      type: Number,
+      default: -1
     }
   },
   data() {
     let liHeight = 36;
     let moveHeight = 0;
-    const valIndex = this.lists.indexOf(this.value[this.selectIndex]);
+    const valIndex = this.lists.indexOf(this.value[this.deep]);
     if (valIndex > -1) {
-      moveHeight = -this.lists.indexOf(this.value[this.selectIndex]) * liHeight;
+      moveHeight = -this.lists.indexOf(this.value[this.deep]) * liHeight;
     }
     return {
       liHeight,
       start: 0,
-      end: 0,
+      end: true,
       preHeight: moveHeight,
       moveHeight,
-      isScroll: false,
-      index: 0
+      isScroll: false
     };
   },
-  computed: {},
+  computed: {
+    index() {
+      return Math.abs(parseInt(this.moveHeight / this.liHeight, 10));
+    }
+  },
   watch: {
     moveHeight: function(val) {},
     // lists 变化时，滚动归零
     lists(newval, oldval) {
-        console.log(newval, oldval)
-        
+      // this.emitChange();
+    },
+    indexArr(val) {
+      // this.emitChange();
+    },
+    index(newval, oldval) {
+      // 触发change事件
+      this.emitChange();
+    },
+    // 监听自己需不要滚动到0
+    whoIsZero(val) {
+      if (this.deep === val) {
         this.moveHeight = 0;
         this.preHeight = 0;
-        // this.emitChange();
-      
+      }
     }
   },
   mounted() {
@@ -77,20 +93,21 @@ export default {
     });
   },
   methods: {
+    initChange() {},
     emitChange() {
       // 选中的值列表
       let val = [...this.value];
       // 选中的值的索引列表
       let IndexArr = [...this.indexArr];
-      val[this.selectIndex] = this.lists[this.index];
-      IndexArr[this.selectIndex] = this.index || 0;
+      val[this.deep] = this.lists[this.index];
+      IndexArr[this.deep] = this.index || 0;
       this.$emit("update:value", val);
       this.$emit("update:indexArr", IndexArr);
       this.$emit(
         "change",
         JSON.parse(JSON.stringify(val)),
-        this.index,
-        this.selectIndex
+        IndexArr,
+        this.deep
       );
     },
     getPageY(e) {
@@ -110,7 +127,7 @@ export default {
     touchstart(e) {
       let { y } = this.getPageY(e);
       this.start = y;
-      this.end = y;
+      this.end = false;
     },
     touchmove(e) {
       let { y } = this.getPageY(e);
@@ -124,9 +141,7 @@ export default {
         this.moveHeight = -(this.lists.length - 1) * this.liHeight;
       }
       this.scroll();
-      this.index = Math.abs(parseInt(this.moveHeight / this.liHeight, 10));
-      // 触发change事件
-      this.emitChange();
+      this.end = true;
       this.preHeight = this.moveHeight;
     },
     // 滚动调整

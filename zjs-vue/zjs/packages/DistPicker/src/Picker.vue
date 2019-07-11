@@ -13,11 +13,13 @@
             @change="change"
             v-for="(item, index) in new Array(cols)"
             :key="index"
-            :selectIndex="index"
+            :deep="index"
             :value.sync="value"
+            :whoIsZero="whoIsZero"
             :labelKey="labelKey"
             :lists="getLists(data,indexArr,index)"
             :indexArr.sync="indexArr"
+            :cols="cols"
           />
         </div>
       </div>
@@ -48,7 +50,7 @@ export default {
     },
     cols: {
       type: Number,
-      default: 2
+      default: 1
     },
     val: {
       type: Array,
@@ -64,7 +66,8 @@ export default {
       step: 0,
       value: this.val || [],
       opened: false,
-      indexArr: []
+      indexArr: [],
+      whoIsZero: -1
     };
   },
   computed: {},
@@ -78,7 +81,7 @@ export default {
         if (i === 0) {
           lists = data;
         } else {
-          lists = lists[index].children;
+          lists = lists[index] ? lists[index].children || [] : [];
         }
       }
       return lists;
@@ -102,12 +105,10 @@ export default {
       }
     },
     change(val, index, selectIndex) {
-      console.log(val, index, selectIndex);
       this.$emit("onChange", val, index, selectIndex);
     }
   },
   created() {
-    console.log(this.cols);
   },
   watch: {
     visible(val) {
@@ -118,6 +119,15 @@ export default {
         this.$emit("open");
       } else {
       }
+    },
+    // 设置哪一列需要滚动到0
+    indexArr(newVal, oldVal) {
+      newVal.forEach((item, index) => {
+        // 级联选时是本级一旦滚动，下一级就需要滚动到0
+        if (item !== oldVal[index]) {
+          this.whoIsZero = index + 1;
+        }
+      });
     }
   },
   mounted() {
