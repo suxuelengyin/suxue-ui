@@ -55,7 +55,6 @@ export default {
   },
   created() {
     promiseCallback(this.dataEventsList[0](), data => {
-      console.log(data);
       this.$emit("update:data", data);
     });
   },
@@ -66,6 +65,7 @@ export default {
     },
     setdata: data => {
       this.$emit("update:data", data);
+      this.$forceUpdate()
     }
   }
 };

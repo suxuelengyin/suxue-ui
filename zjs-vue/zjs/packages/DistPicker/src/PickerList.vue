@@ -12,12 +12,13 @@
       <li
         v-for="(list,index) in lists"
         :key="index"
-      >{{typeof list === "string"?list:list[labelKey]}}</li>
+      >{{typeof list === "object"?list[labelKey]:list}}</li>
     </ul>
   </div>
 </template>
 <script>
 import { promiseCallback } from "./utils";
+import { isEqual } from "lodash/lang";
 export default {
   name: "zjs-pickerlist",
   props: {
@@ -56,6 +57,10 @@ export default {
     cascade: {
       type: Boolean,
       default: true
+    },
+    cols: {
+      type: Number,
+      default: 1
     }
   },
   data() {
@@ -95,25 +100,16 @@ export default {
     }
   },
   watch: {
-    moveHeight: function(val) {},
     // lists 变化时，滚动归零
     lists(newval, oldval) {
-      // this.emitChange();
-    },
-    indexArr(val) {
-      // this.emitChange();
-    },
-    // 监听自己需不要滚动到0
-    whoIsZero(val) {
-      if (this.cascade) {
-        if (this.deep === val) {
-          this.moveHeight = 0;
-          this.preHeight = 0;
-          this.index = 0;
-          this.emitChange();
-        }
+      if (!isEqual(newval, oldval)) {
+        // 改变val
+        this.emitChange();
+        // 滚动归零
+        this.moveToZero();
       }
-    }
+      // if(newval)
+    },  
   },
   mounted() {
     this.$nextTick(() => {
@@ -122,43 +118,70 @@ export default {
   },
   methods: {
     initChange() {},
-    updateData() {
+    // 滚动归零
+    moveToZero() {
+      this.moveHeight = 0;
+      this.preHeight = 0;
+      this.index = 0;
+      this.scrollAnimation();
+    },
+    // 滚动动画
+    scrollAnimation() {
+      this.isScroll = true;
+      setTimeout(() => {
+        this.isScroll = false;
+      }, 300);
+    },
+    updateData(val, indexArr, deep) {
       let nowLists = [...this.lists];
       const fn = this.dataEventsList[this.deep + 1] || function() {};
-      console.log(fn);
-      let oldData =  [...this.data]
-      let lists = [...this.data][this.indexArr[0]];
+      let oldData = [...this.data];
+      let lists = [...this.data][indexArr[0]];
       let index = 0;
-      for (let i = 0; i <= this.deep; i++) {
-        index = this.indexArr[i - 1] || 0;
-        if (i !== 0) {
-          lists = lists[index] ? lists[index].children || [] : [];
+      //   修改指定深度的数据
+      for (let i = 0; i <= deep; i++) {
+        index = indexArr[i] || 0;
+        if (lists.length) {
+          lists = lists[index] || {};
         }
-        if (i === this.deep) {
-          promiseCallback(fn(nowLists[this.index]), data => {
-            lists.children = data;
-            console.log(oldData,lists,data)
-            this.setdata(oldData);
-          });
+        if (lists.children) {
+          lists = lists.children;
+        }
+        if (i === deep) {
+          if (lists.children) {
+            return;
+          }
+          if (nowLists[this.index || 0]) {
+            promiseCallback(fn(nowLists[this.index]), data => {
+              this.$set(lists, "children", data);
+              this.setdata(oldData);
+            });
+          }
         }
       }
     },
     emitChange() {
-      this.updateData();
       // 选中的值列表
       let val = [...this.value];
       // 选中的值的索引列表
       let IndexArr = [...this.indexArr];
       val[this.deep] = this.lists[this.index];
       IndexArr[this.deep] = this.index || 0;
-      this.$emit("update:value", val);
+      this.$emit("update:val", val);
       this.$emit("update:indexArr", IndexArr);
-      this.$emit(
-        "change",
-        JSON.parse(JSON.stringify(val)),
-        IndexArr,
-        this.deep
-      );
+      this.$forceUpdate();
+      if (val.filter(item => item).length === this.cols) {
+        this.$emit(
+          "change",
+          JSON.parse(JSON.stringify(val)),
+          IndexArr,
+          this.deep
+        );
+      }
+
+      if (this.deep + 1 !== this.cols) {
+        this.updateData(val, IndexArr, this.deep);
+      }
     },
     getPageY(e) {
       if (
@@ -199,20 +222,17 @@ export default {
       }
       this.preHeight = this.moveHeight;
     },
-    // 滚动调整
+    // 计算滚动调整
     scroll(e) {
       let res = Math.abs(this.moveHeight % this.liHeight);
       // 添加滚动调整动画
-      this.isScroll = true;
       // 计算需要调整的滚动距离
       if (res !== 0 && res > this.liHeight / 2) {
         this.moveHeight = this.moveHeight - (this.liHeight - res);
       } else if (res !== 0) {
         this.moveHeight = this.moveHeight + res;
       }
-      setTimeout(() => {
-        this.isScroll = false;
-      }, 300);
+      this.scrollAnimation();
     }
   }
 };

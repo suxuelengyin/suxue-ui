@@ -2,9 +2,11 @@
   <div id="app">
     <Picker
       @onChange="onChange"
+      @onOk="ok"
       labelKey="name"
       title="请选择地区"
       :cols="cols"
+      :cascade="false"
       :data.sync="data"
       :dataEventsList="dataEventList"
     >
@@ -32,12 +34,19 @@ export default {
           fetch("https://dev.zijinshe.com/cms/weixin/zjs/getProvinces")
             .then(res => res.json())
             .then(data => data),
-        (value) =>
+        value =>
           fetch(
             `https://dev.zijinshe.com/cms/weixin/zjs/getCity?cityNum=${value.regionCode}`
           )
             .then(res => res.json())
-            .then(data => data)
+            .then(data => data),
+        value =>
+          fetch(
+            `https://dev.zijinshe.com/cms/weixin/zjs/getArea?areaNum=${value.regionCode}`
+          )
+            .then(res => res.json())
+            .then(data => data),
+        () => [1, 1, 1, 1, 1, 2, 1, 1, 1]
       ]
     };
   },
@@ -48,36 +57,11 @@ export default {
     toggle() {
       this.visible = !this.visible;
     },
+    ok(val) {
+      console.log(val);
+    },
     onChange(val, indexArr, deep) {
       console.log(val, indexArr, deep);
-      //   if (!this.data[indexArr[0]].children) {
-      //     fetch(
-      //       `https://dev.zijinshe.com/cms/weixin/zjs/getCity?cityNum=${value.regionCode}`
-      //     )
-      //       .then(res => res.json())
-      //       .then(data => {
-      //         const list = this.data[indexArr[0]];
-      //         list.children = data;
-      //         this.$set(this.data, indexArr[0], list);
-      //         this.cols = 2;
-      //       });
-      //   }
-      //   console.log(!this.data[indexArr[0]].children[indexArr[1]].children)
-      //   if (
-      //     !this.data[indexArr[0]].children[indexArr[1]].children
-      //   ) {
-      //     fetch(
-      //       `https://dev.zijinshe.com/cms/weixin/zjs/getArea?areaNum=${val[1].regionCode}`
-      //     )
-      //       .then(res => res.json())
-      //       .then(data => {
-      //         const list = this.data[indexArr[0]];
-      //         list.children[indexArr[1]].children = data;
-      //         console.log(list);
-      //         this.$set(this.data, indexArr[0], list);
-      //         this.cols = 3;
-      //       });
-      //   }
     }
   }
 };

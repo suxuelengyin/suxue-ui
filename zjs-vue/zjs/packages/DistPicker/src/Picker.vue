@@ -15,7 +15,6 @@
             :key="index"
             :deep="index"
             :value.sync="value"
-            :whoIsZero="whoIsZero"
             :labelKey="labelKey"
             :data="data"
             :indexArr.sync="indexArr"
@@ -68,22 +67,22 @@ export default {
     cascade: {
       type: Boolean,
       default: true
-    },
+    }
   },
   data: function() {
     return {
       step: 0,
       value: this.val || [],
       opened: false,
-      indexArr: new Array(this.cols).fill(0),
-      whoIsZero: -1
+      indexArr: new Array(this.cols).fill(0)
     };
   },
   computed: {},
   methods: {
     init() {},
     ok() {
-      this.$emit("onOk");
+      console.log(this.val);
+      this.$emit("onOk", this.val);
       this.close();
     },
     close() {
@@ -118,14 +117,7 @@ export default {
       }
     },
     // 设置哪一列需要滚动到0
-    indexArr(newVal, oldVal) {
-      newVal.forEach((item, index) => {
-        // 级联选时是本级一旦滚动，下一级就需要滚动到0
-        if (item !== oldVal[index]) {
-          this.whoIsZero = index + 1;
-        }
-      });
-    }
+    indexArr(newVal, oldVal) {}
   },
   mounted() {
     this.$nextTick(() => {
