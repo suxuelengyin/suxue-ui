@@ -32,13 +32,13 @@ export default {
     },
     dataEventsList: {
       type: Array,
-      default: () => [() => false, () => false]
+      default: () => []
     },
     labelKey: {
       type: String,
       default: "label"
     },
-    value: {
+    val: {
       type: Array,
       default: () => []
     },
@@ -49,10 +49,6 @@ export default {
     whoIsZero: {
       type: Number,
       default: -1
-    },
-    setdata: {
-      type: Function,
-      default: () => () => {}
     },
     cascade: {
       type: Boolean,
@@ -66,9 +62,9 @@ export default {
   data() {
     let liHeight = 36;
     let moveHeight = 0;
-    const valIndex = this.data.indexOf(this.value[this.deep]);
+    const valIndex = this.data.indexOf(this.val[this.deep]);
     if (valIndex > -1) {
-      moveHeight = -this.data.indexOf(this.value[this.deep]) * liHeight;
+      moveHeight = -this.data.indexOf(this.val[this.deep]) * liHeight;
     }
     return {
       liHeight,
@@ -94,22 +90,23 @@ export default {
           }
         }
       } else {
-        lists = data[this.deep];
+        lists = this.data[this.deep];
       }
+
       return lists;
     }
   },
   watch: {
     // lists 变化时，滚动归零
     lists(newval, oldval) {
-      if (!isEqual(newval, oldval)) {
+      if (!isEqual(newval, oldval) && this.cascade) {
         // 改变val
         this.emitChange();
         // 滚动归零
         this.moveToZero();
       }
       // if(newval)
-    },  
+    }
   },
   mounted() {
     this.$nextTick(() => {
@@ -132,6 +129,32 @@ export default {
         this.isScroll = false;
       }, 300);
     },
+    // 是否级联选数据变化策略对象
+    isCascade(cascade) {
+      const method = {
+        cascade: () => {},
+        notCascade: () => {
+          // 选中的值列表
+          let val = [...this.val];
+          // 选中的值的索引列表
+          let IndexArr = [...this.indexArr];
+          val[this.deep] = this.lists[this.index];
+          IndexArr[this.deep] = this.index || 0;
+          this.$emit("update:val", val);
+          this.$emit("update:indexArr", IndexArr);
+          this.$forceUpdate();
+          if (val.filter(item => item).length === this.cols) {
+            this.$emit(
+              "change",
+              JSON.parse(JSON.stringify(val)),
+              IndexArr,
+              this.deep
+            );
+          }
+        }
+      };
+      return cascade ? method["cascade"] : method["notCascade"];
+    },
     updateData(val, indexArr, deep) {
       let nowLists = [...this.lists];
       const fn = this.dataEventsList[this.deep + 1] || function() {};
@@ -153,8 +176,8 @@ export default {
           }
           if (nowLists[this.index || 0]) {
             promiseCallback(fn(nowLists[this.index]), data => {
+              // 更新data
               this.$set(lists, "children", data);
-              this.setdata(oldData);
             });
           }
         }
@@ -162,13 +185,13 @@ export default {
     },
     emitChange() {
       // 选中的值列表
-      let val = [...this.value];
+      let val = [...this.val];
       // 选中的值的索引列表
       let IndexArr = [...this.indexArr];
       val[this.deep] = this.lists[this.index];
       IndexArr[this.deep] = this.index || 0;
-      this.$emit("update:val", val);
-      this.$emit("update:indexArr", IndexArr);
+      this.$set(this.val, this.deep, this.lists[this.index]);
+      this.$set(this.indexArr, this.deep, this.index || 0);
       this.$forceUpdate();
       if (val.filter(item => item).length === this.cols) {
         this.$emit(
@@ -178,8 +201,11 @@ export default {
           this.deep
         );
       }
-
-      if (this.deep + 1 !== this.cols) {
+      // 需要开启异步获取数据才需要更新数据
+      if (
+        this.dataEventsList.length >= this.cols &&
+        this.deep + 1 !== this.cols
+      ) {
         this.updateData(val, IndexArr, this.deep);
       }
     },

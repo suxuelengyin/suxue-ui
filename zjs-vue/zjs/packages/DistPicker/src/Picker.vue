@@ -14,12 +14,10 @@
             v-for="(item, index) in new Array(cols)"
             :key="index"
             :deep="index"
-            :value.sync="value"
-            :labelKey="labelKey"
-            :data="data"
+            :val.sync="val"
             :indexArr.sync="indexArr"
-            :cols="cols"
-            :dataEventsList="dataEventsList"
+            v-bind="$props"
+            :data="data"
           />
         </div>
       </div>
@@ -46,23 +44,19 @@ export default {
     },
     dataEventsList: {
       type: Array,
-      default: () => [() => false, () => false]
+      default: () => []
     },
     cols: {
       type: Number,
       default: 1
     },
-    val: {
+    value: {
       type: Array,
       default: () => ["暂无数"]
     },
     data: {
       type: Array,
       default: () => []
-    },
-    setdata: {
-      type: Function,
-      default: () => () => {}
     },
     cascade: {
       type: Boolean,
@@ -72,7 +66,7 @@ export default {
   data: function() {
     return {
       step: 0,
-      value: this.val || [],
+      val: this.value || [],
       opened: false,
       indexArr: new Array(this.cols).fill(0)
     };
@@ -81,8 +75,7 @@ export default {
   methods: {
     init() {},
     ok() {
-      console.log(this.val);
-      this.$emit("onOk", this.val);
+      this.$emit("onOk", this.value);
       this.close();
     },
     close() {
@@ -100,12 +93,11 @@ export default {
       }
     },
     change(val, index, selectIndex) {
+      this.value.splice(0, this.value.length, ...this.val);
       this.$emit("onChange", val, index, selectIndex);
     }
   },
-  created() {
-    this.$emit("update:data", []);
-  },
+  created() {},
   watch: {
     visible(val) {
       if (val) {

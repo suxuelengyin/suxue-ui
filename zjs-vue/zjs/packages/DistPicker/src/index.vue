@@ -3,7 +3,7 @@
     <div @click.stop="toggle">
       <slot></slot>
     </div>
-    <Picker v-bind="$props" :setdata="setdata" v-on="$listeners" :visible.sync="visible" />
+    <Picker v-bind="$props" v-on="$listeners" :visible.sync="visible" />
   </div>
 </template>
 <script>
@@ -25,7 +25,7 @@ export default {
     },
     dataEventsList: {
       type: Array,
-      default: () => [() => false, () => false]
+      default: () => []
     },
     data: {
       type: Array,
@@ -41,7 +41,7 @@ export default {
       type: Number,
       default: 3
     },
-    val: {
+    value: {
       type: Array,
       default: function() {
         return new Array(this.cols).fill(0);
@@ -54,19 +54,17 @@ export default {
     };
   },
   created() {
-    promiseCallback(this.dataEventsList[0](), data => {
-      this.$emit("update:data", data);
-    });
+    if (this.cascade) {
+      promiseCallback(this.dataEventsList[0](), data => {
+        this.$emit("update:data", data);
+      });
+    }
   },
   mounted() {},
   methods: {
     toggle() {
       this.visible = !this.visible;
     },
-    setdata: data => {
-      this.$emit("update:data", data);
-      this.$forceUpdate()
-    }
   }
 };
 </script>

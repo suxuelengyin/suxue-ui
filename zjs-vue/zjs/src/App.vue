@@ -4,13 +4,12 @@
       @onChange="onChange"
       @onOk="ok"
       labelKey="name"
-      title="请选择地区"
+      title="请选择"
       :cols="cols"
       :cascade="false"
       :data.sync="data"
-      :dataEventsList="dataEventList"
     >
-      <button>地区选择器</button>
+      <button>{{val}}</button>
     </Picker>
   </div>
 </template>
@@ -24,7 +23,7 @@ export default {
     Picker
   },
   data: function() {
-    let data = [];
+    let data = [[1, 1, 1, 1], [2, 2, 2, , 2], [3, 3, 4, 3, 3]];
     return {
       data,
       visible: false,
@@ -47,7 +46,8 @@ export default {
             .then(res => res.json())
             .then(data => data),
         () => [1, 1, 1, 1, 1, 2, 1, 1, 1]
-      ]
+      ],
+      val: "选择器"
     };
   },
   watch: {},
@@ -57,8 +57,8 @@ export default {
     toggle() {
       this.visible = !this.visible;
     },
-    ok(val) {
-      console.log(val);
+    ok(value) {
+      this.val = value.join(',')
     },
     onChange(val, indexArr, deep) {
       console.log(val, indexArr, deep);
