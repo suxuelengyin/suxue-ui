@@ -54,9 +54,14 @@ export default {
     };
   },
   created() {
-    if (this.cascade) {
+    if (this.dataEventsList.length > 0) {
       promiseCallback(this.dataEventsList[0](), data => {
-        this.$emit("update:data", data);
+        //  级联选和非级联选更新数据的方式不同
+        if (this.cascade) {
+          this.$emit("update:data", data);
+        } else {
+          this.$emit("update:data", [data]);
+        }
       });
     }
   },
@@ -64,7 +69,7 @@ export default {
   methods: {
     toggle() {
       this.visible = !this.visible;
-    },
+    }
   }
 };
 </script>

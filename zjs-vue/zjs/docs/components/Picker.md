@@ -24,7 +24,13 @@
 
 > 注意，你的列数不能比数据的级数多。  
 
-若开启级联选，结构至少应满足 `Array<label:string,children:Array<>>`，`children` 定义了它下一级的数据。
+若开启级联选，结构至少应满足 `Array<label:string,children:Array<>>`，`children` 定义了它下一级的数据。  
+
+若不开启级联选，结构应为 `Array<Array<string|number|object>>`，数组的每一项定义了每一列的数据。
+
+### `dataEventsList`
+
+开启异步加载数据模式。每一项函数都定义了如何获取对应列数据，同时函数接收上一列选中的值。函数的返回值 是符合条件的列数据，也可以是一个 `promise`。
 
 ## Events（事件）
 
@@ -32,4 +38,12 @@
 
 点击确定时，触发的回调函数，该函数接受选中的值作为参数。
 
+### `onChange(val,indexArr,deep)`
+
+每一列选中的值发生变化时。该函数可能会触发多次。
+
 ## Slot（插槽）
+
+### `default` 默认
+
+触发选择器的元素。

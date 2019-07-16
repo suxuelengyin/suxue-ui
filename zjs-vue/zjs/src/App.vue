@@ -6,24 +6,28 @@
       labelKey="name"
       title="请选择"
       :cols="cols"
-      :cascade="false"
+      :cascade="true"
       :data.sync="data"
+      :dataEventsList="dataEventList"
     >
       <button>{{val}}</button>
     </Picker>
+    <DatePicker />
   </div>
 </template>
 
 <script>
 import Picker from "../packages/DistPicker";
+import DatePicker from "../packages/DatePicker";
 
 export default {
   name: "app",
   components: {
-    Picker
+    Picker,
+    DatePicker
   },
   data: function() {
-    let data = [[1, 1, 1, 1], [2, 2, 2, , 2], [3, 3, 4, 3, 3]];
+    let data = [];
     return {
       data,
       visible: false,

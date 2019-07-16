@@ -90,7 +90,7 @@ export default {
           }
         }
       } else {
-        lists = this.data[this.deep];
+        lists = this.data[this.deep] || [];
       }
 
       return lists;
@@ -99,11 +99,13 @@ export default {
   watch: {
     // lists 变化时，滚动归零
     lists(newval, oldval) {
-      if (!isEqual(newval, oldval) && this.cascade) {
+      if (!isEqual(newval, oldval)) {
         // 改变val
         this.emitChange();
-        // 滚动归零
-        this.moveToZero();
+        // 滚动归零只在级联选时触发
+        if (this.cascade) {
+          this.moveToZero();
+        }
       }
       // if(newval)
     }
@@ -156,31 +158,44 @@ export default {
       return cascade ? method["cascade"] : method["notCascade"];
     },
     updateData(val, indexArr, deep) {
+      if (this.dataEventsList.length < this.cols) {
+        return;
+      }
       let nowLists = [...this.lists];
       const fn = this.dataEventsList[this.deep + 1] || function() {};
       let oldData = [...this.data];
-      let lists = [...this.data][indexArr[0]];
+      let lists = [...this.data][indexArr[0]] || [];
       let index = 0;
       //   修改指定深度的数据
-      for (let i = 0; i <= deep; i++) {
-        index = indexArr[i] || 0;
-        if (lists.length) {
-          lists = lists[index] || {};
-        }
-        if (lists.children) {
-          lists = lists.children;
-        }
-        if (i === deep) {
+      if (this.cascade) {
+        for (let i = 0; i <= deep; i++) {
+          index = indexArr[i] || 0;
+          if (lists.length) {
+            lists = lists[index] || {};
+          }
           if (lists.children) {
-            return;
+            lists = lists.children;
           }
-          if (nowLists[this.index || 0]) {
-            promiseCallback(fn(nowLists[this.index]), data => {
-              // 更新data
-              this.$set(lists, "children", data);
-            });
+          if (i === deep) {
+            if (lists.children) {
+              return;
+            }
+            if (nowLists[this.index || 0]) {
+              promiseCallback(fn(nowLists[this.index]), data => {
+                // 更新data
+                this.$set(lists, "children", data);
+              });
+            }
           }
         }
+      } else {
+        promiseCallback(fn(this.val), data => {
+          // 更新data
+          if (this.deep + 1 < this.cols) {
+            console.log(data, this.deep + 1);
+            this.$set(this.data, this.deep + 1, data);
+          }
+        });
       }
     },
     emitChange() {
@@ -202,12 +217,7 @@ export default {
         );
       }
       // 需要开启异步获取数据才需要更新数据
-      if (
-        this.dataEventsList.length >= this.cols &&
-        this.deep + 1 !== this.cols
-      ) {
-        this.updateData(val, IndexArr, this.deep);
-      }
+      this.updateData(val, IndexArr, this.deep);
     },
     getPageY(e) {
       if (
