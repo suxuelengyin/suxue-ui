@@ -1,0 +1,19 @@
+{
+  "name": "suxue-ui",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "zjs-vue": "zjs.vue.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/suxuelengyin/suxue-ui.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/suxuelengyin/suxue-ui/issues"
+  },
+  "homepage": "https://github.com/suxuelengyin/suxue-ui#readme"
+}

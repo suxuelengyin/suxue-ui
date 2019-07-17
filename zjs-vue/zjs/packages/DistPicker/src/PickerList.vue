@@ -38,7 +38,7 @@ export default {
       type: String,
       default: "label"
     },
-    val: {
+    value: {
       type: Array,
       default: () => []
     },
@@ -62,9 +62,9 @@ export default {
   data() {
     let liHeight = 36;
     let moveHeight = 0;
-    const valIndex = this.data.indexOf(this.val[this.deep]);
+    const valIndex = this.data.indexOf(this.value[this.deep]);
     if (valIndex > -1) {
-      moveHeight = -this.data.indexOf(this.val[this.deep]) * liHeight;
+      moveHeight = -this.data.indexOf(this.value[this.deep]) * liHeight;
     }
     return {
       liHeight,
@@ -72,8 +72,7 @@ export default {
       end: true,
       preHeight: moveHeight,
       moveHeight,
-      isScroll: false,
-      index: 0
+      isScroll: false
     };
   },
   computed: {
@@ -92,8 +91,10 @@ export default {
       } else {
         lists = this.data[this.deep] || [];
       }
-
       return lists;
+    },
+    index() {
+      return Math.abs(parseInt(this.moveHeight / this.liHeight, 10)) || 0;
     }
   },
   watch: {
@@ -107,13 +108,17 @@ export default {
           this.moveToZero();
         }
       }
-      // if(newval)
+    },
+    // index变化时，要滚动
+    index(newval, oldval) {
+      // index 变化时需要调整indexArr
+      if (this.end && this.indexArr[this.deep] !== newval) {
+        this.setIndexArr(newval);
+      }
     }
   },
-  mounted() {
-    this.$nextTick(() => {
-      this.emitChange();
-    });
+  created() {
+    this.emitChange();
   },
   methods: {
     initChange() {},
@@ -121,7 +126,6 @@ export default {
     moveToZero() {
       this.moveHeight = 0;
       this.preHeight = 0;
-      this.index = 0;
       this.scrollAnimation();
     },
     // 滚动动画
@@ -130,32 +134,6 @@ export default {
       setTimeout(() => {
         this.isScroll = false;
       }, 300);
-    },
-    // 是否级联选数据变化策略对象
-    isCascade(cascade) {
-      const method = {
-        cascade: () => {},
-        notCascade: () => {
-          // 选中的值列表
-          let val = [...this.val];
-          // 选中的值的索引列表
-          let IndexArr = [...this.indexArr];
-          val[this.deep] = this.lists[this.index];
-          IndexArr[this.deep] = this.index || 0;
-          this.$emit("update:val", val);
-          this.$emit("update:indexArr", IndexArr);
-          this.$forceUpdate();
-          if (val.filter(item => item).length === this.cols) {
-            this.$emit(
-              "change",
-              JSON.parse(JSON.stringify(val)),
-              IndexArr,
-              this.deep
-            );
-          }
-        }
-      };
-      return cascade ? method["cascade"] : method["notCascade"];
     },
     updateData(val, indexArr, deep) {
       if (this.dataEventsList.length < this.cols) {
@@ -189,7 +167,7 @@ export default {
           }
         }
       } else {
-        promiseCallback(fn(this.val), data => {
+        promiseCallback(fn(this.value), data => {
           // 更新data
           if (this.deep + 1 < this.cols) {
             console.log(data, this.deep + 1);
@@ -198,27 +176,27 @@ export default {
         });
       }
     },
+    setIndexArr(val) {
+      this.$set(this.indexArr, this.deep, val || 0);
+    },
+    setParentData() {
+      this.$set(this.value, this.deep, this.lists[this.index]);
+      this.setIndexArr(this.index);
+    },
     emitChange() {
-      // 选中的值列表
-      let val = [...this.val];
-      // 选中的值的索引列表
-      let IndexArr = [...this.indexArr];
-      val[this.deep] = this.lists[this.index];
-      IndexArr[this.deep] = this.index || 0;
-      this.$set(this.val, this.deep, this.lists[this.index]);
-      this.$set(this.indexArr, this.deep, this.index || 0);
-      this.$forceUpdate();
-      if (val.filter(item => item).length === this.cols) {
+      this.setParentData();
+      if (this.value.filter(item => item).length === this.cols) {
         this.$emit(
           "change",
-          JSON.parse(JSON.stringify(val)),
-          IndexArr,
+          JSON.parse(JSON.stringify(this.value)),
+          this.indexArr,
           this.deep
         );
       }
       // 需要开启异步获取数据才需要更新数据
-      this.updateData(val, IndexArr, this.deep);
+      this.updateData(this.value, this.indexArr, this.deep);
     },
+
     getPageY(e) {
       if (
         status !== "11" &&
@@ -251,7 +229,6 @@ export default {
       }
       this.scroll();
       this.end = true;
-      this.index = Math.abs(parseInt(this.moveHeight / this.liHeight, 10)) || 0;
       // 触发change事件
       if (this.preHeight !== this.moveHeight) {
         this.emitChange();

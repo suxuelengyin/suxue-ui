@@ -14,7 +14,6 @@
             v-for="(item, index) in new Array(cols)"
             :key="index"
             :deep="index"
-            :val.sync="val"
             :indexArr.sync="indexArr"
             v-bind="$props"
             :data="data"

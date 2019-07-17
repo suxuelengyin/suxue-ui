@@ -14,7 +14,7 @@ module.exports = {
 		],
 		sidebar: [
             genWhySidebarConfig('介绍', '/introduce/', []),
-			genWhySidebarConfig('组件', '/components/', ['Picker']),
+			genWhySidebarConfig('组件', '/components/', ['Picker','DatePicker']),
 		]
 	},
 

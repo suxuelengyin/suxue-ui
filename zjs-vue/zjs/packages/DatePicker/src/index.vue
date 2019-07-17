@@ -18,6 +18,28 @@ export default {
   components: {
     Picker
   },
+  props: {
+    title: {
+      type: String,
+      default: "请选择"
+    },
+    mode: {
+      type: String,
+      default: "date"
+    },
+    use12Hours: {
+      type: Boolean,
+      default: false
+    },
+    value: {
+      type: Date,
+      default: () => new Date()
+    },
+    format: {
+      type: String,
+      default: "YYYY-MM-DD"
+    }
+  },
   data: function() {
     let data = [];
     return {
@@ -26,23 +48,6 @@ export default {
       cols: 6,
       month: 1,
       isLeap: false,
-      dataEventList: [
-        () => {
-          const start = 1960;
-          var date = new Date();
-          var year = date.getFullYear();
-          const length = year - start + 1;
-          return new Array(length)
-            .fill(start)
-            .map((item, index) => item + index + "年");
-        },
-        value => new Array(12).fill(1).map((item, index) => 1 + index + "月"),
-        value => {
-          console.log(month);
-        },
-        value => new Array(24).fill(1).map((item, index) => 1 + index + "时"),
-        value => new Array(60).fill(1).map((item, index) => 1 + index + "分")
-      ],
       val: "时间选择器"
     };
   },
@@ -93,6 +98,7 @@ export default {
     ok(value) {
       this.val = value.join("");
     },
+    // 改变列数据，闰年或者月份变化
     onChange(val, indexArr, deep) {
       const month = Number(val[1].split("月")[0]);
       const isLeap = Number(val[0].split("年")[0]) % 4 === 0;

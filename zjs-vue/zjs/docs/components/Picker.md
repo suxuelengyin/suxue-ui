@@ -1,5 +1,13 @@
 # Picker（选择器）
 
+> **Todo：**  
+>
+> - 优化底层逻辑和PickerList组件，以更好的实现其他功能，如：循环滚动。
+>
+> - 更好的设计 `dataEventsList` api 的作用，在级联选和非级联选下表现不同的功能。
+>
+> - 添加 head 插槽和 li 插槽。
+
 ## Attr（属性）
 
 ### `title`
